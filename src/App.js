@@ -1,8 +1,10 @@
 import React from 'react'
+//components
+import Stage from './components/Stage'
 
-function App() {
+const App = () => {
   return (
-    <div className="App">app</div>
+    <Stage />
   );
 }
 
