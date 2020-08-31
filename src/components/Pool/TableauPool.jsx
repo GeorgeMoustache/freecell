@@ -4,7 +4,7 @@ import styled from "styled-components";
 import CardColumn from "../Column";
 import Card from "../Card/";
 
-const StyleDefaultPool = styled.ul`
+const StyleTableauPool = styled.ul`
   display: flex;
   justify-content: space-between;
   li {
@@ -22,14 +22,14 @@ const StyleDefaultPool = styled.ul`
   }
 `;
 
-const DefaultPool = ({ defaultCard, handleMoveCard }) => {
+const TableauPool = ({ tableau, handleMoveCard }) => {
   return (
-    <StyleDefaultPool>
-      {defaultCard.map((item, idx) => {
+    <StyleTableauPool>
+      {tableau.map((item, idx) => {
         return (
           <CardColumn
-            defaultCard={defaultCard}
-            poolType={"default"}
+            tableau={tableau}
+            poolType={"tableau"}
             columnIdx={idx}
             handleMoveCard={handleMoveCard}
             key={idx}
@@ -37,9 +37,10 @@ const DefaultPool = ({ defaultCard, handleMoveCard }) => {
             {item.map((childItem, childIdx) => {
               return (
                 <Card
+                  cards={item}
                   cardType={childItem.cardType}
                   cardNum={childItem.cardNum}
-                  fromPoolType={"default"}
+                  fromPoolType={"tableau"}
                   fromColumn={idx}
                   cardIdx={childIdx}
                   key={childItem.cardType + childItem.cardNum}
@@ -49,8 +50,8 @@ const DefaultPool = ({ defaultCard, handleMoveCard }) => {
           </CardColumn>
         );
       })}
-    </StyleDefaultPool>
+    </StyleTableauPool>
   );
 };
 
-export default DefaultPool;
+export default TableauPool;

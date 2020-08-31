@@ -2,76 +2,113 @@ import React from "react";
 import { useDrop } from "react-dnd";
 import ItemTypes from "../../utils/Constants";
 
-const CardColumn = ({ freeCard, finishCard, defaultCard, poolType, columnIdx, handleMoveCard, children }) => {
+const CardColumn = ({
+  free,
+  foundation,
+  tableau,
+  colorType,
+  poolType,
+  columnIdx,
+  handleMoveCard,
+  children,
+}) => {
   //eslint-disable-next-line
   const [{}, dropRef] = useDrop({
     accept: ItemTypes.CARD,
-    drop: item => {
-      const { fromPoolType, fromColumn } = item;
+    drop: (item) => {
+      const { fromPoolType, fromColumn, cardIdx, cards } = item;
       const toPoolType = poolType;
       const toColumn = columnIdx;
-      console.log("item", item);
-      console.log("fromPoolType", fromPoolType);
-      console.log("fromColumn", fromColumn);
-      console.log("toColumn", toColumn);
-      console.log("toPoolType", toPoolType);
-      handleMoveCard(item, fromPoolType, fromColumn, toPoolType, toColumn);
+      const itemCards = item.cards.slice().splice(cardIdx, cards.length);
+      handleMoveCard(
+        itemCards,
+        fromPoolType,
+        fromColumn,
+        toPoolType,
+        toColumn,
+        cardIdx
+      );
     },
-    canDrop: item => {
+    canDrop: (item) => {
+      const { cardType, cardNum, cardIdx, cards } = item;
+      const itemCards = cards.slice().splice(cardIdx, cards.length);
+
       //color judgement
       const cardColor = (cardType) => {
-        if (cardType === 'spade' || cardType === 'club') {
-          return 'black'
+        if (cardType === "spade" || cardType === "club") {
+          return "black";
         } else {
-          return 'red'
+          return "red";
         }
-      }
+      };
 
-      //rule
-      switch (poolType) {
-        //freeCard
-        case 'free':
-          if (!freeCard[columnIdx].cardNum) {
-            return true
-          } else {
-            return false
-          }
-        //finishCard
-        case 'finish':
-          const finishTarget = finishCard[columnIdx];
-          const targetType = finishTarget.type;
-          const targetCards = finishTarget.cards;
-          if (targetType === item.cardType) {
-            if (targetCards.length === 0 && item.cardNum === 1) {
-              return true
+      //判斷卡片群組是否為可拖曳序列
+      const reduceData = itemCards.reduce((prevItem, curItem, idx, array) => {
+        const prevItemType = cardColor(prevItem.cardType);
+        const curItemType = cardColor(curItem.cardType);
+        const prevItemNum = prevItem.cardNum;
+        const curItemNum = curItem.cardNum;
+        if (prevItemType !== curItemType && prevItemNum === curItemNum + 1) {
+          return array;
+        } else {
+          return false;
+        }
+      });
+
+      if (reduceData) {
+        //rule
+        switch (poolType) {
+          //freeCard
+          case "free":
+            if (free[columnIdx].length === 0 && itemCards.length === 1) {
+              return true;
             } else {
-              if (targetCards[targetCards.length - 1].cardNum === item.cardNum - 1) {
-                return true
+              return false;
+            }
+          //foundationCard
+          case "foundation":
+            const foundationTarget = foundation[columnIdx];
+            if (cardType === colorType && itemCards.length === 1) {
+              if (foundationTarget.length === 0 && cardNum === 1) {
+                return true;
               } else {
-                return false
+                if (
+                  foundationTarget[foundationTarget.length - 1].cardNum ===
+                  cardNum - 1
+                ) {
+                  return true;
+                } else {
+                  return false;
+                }
+              }
+            } else {
+              return false;
+            }
+          //tableauCard
+          case "tableau":
+            const tableauTarget = tableau[columnIdx];
+            const lastTargetCard = tableauTarget[tableauTarget.length - 1];
+            if (tableauTarget.length === 0) {
+              return true;
+            } else {
+              if (
+                cardColor(lastTargetCard.cardType) !== cardColor(cardType) &&
+                lastTargetCard.cardNum === cardNum + 1
+              ) {
+                return true;
+              } else {
+                return false;
               }
             }
-          } else {
-            return false
-          }
-        //defaultCard
-        case 'default':
-          const defaultTarget = defaultCard[columnIdx];
-          const lastTargetCard = defaultTarget[defaultTarget.length - 1];
-          if (defaultTarget.length === 0) {
-            return true
-          } else {
-            if (cardColor(lastTargetCard.cardType) !== cardColor(item.cardType) && lastTargetCard.cardNum === item.cardNum + 1) {
-              return true
-            } else {
-              return false
-            }
-          }
-        default:
-          return false
+          default:
+            return false;
+        }
+      } else {
+        return false;
       }
-    }
+    },
   });
+
   return <li ref={dropRef}>{children}</li>;
 };
 

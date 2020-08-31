@@ -22,27 +22,24 @@ const StyleStage = styled.div`
   }
 `;
 
-//卡片種類
-// const type = ["spade", "heart", "diamond", "club"];
+const initState = {
+  id: 0, //局號
+  status: 0, //遊戲狀態 0:新局; 1:暫停; 2:遊戲結束
+  moves: 0, //移動次數
+  //卡片兒
+  cards: {
+    tableau: [],
+    free: [[], [], [], []],
+    foundation: [[], [], [], []],
+  },
+  history: [], //歷史記錄
+  dialogEnabled: true, //dialog 開關
+};
 
 const Stage = () => {
-  const [gameStatus, setGameStatus] = useState(0); //遊戲狀態 0:新局; 1:暫停; 2:遊戲結束
-  const [gameId, setGameId] = useState(0); //局號
-  const [counter, setCounter] = useState(); //計時器
+  const [game, setGame] = useState(initState);
+  const [counter, setCounter] = useState(null); //計時器
   const [time, setTime] = useState(0); //秒數
-  const [moves, setMoves] = useState(0); //移動次數
-  //初始牌組卡片
-  const [defaultCard, setDefaultCard] = useState([]);
-  //自由牌組區卡片
-  const [freeCard, setFreeCard] = useState([{}, {}, {}, {}]);
-  //完成牌組區卡片
-  const [finishCard, setFinishCard] = useState([
-    { type: "spade", cards: [] },
-    { type: "heart", cards: [] },
-    { type: "diamond", cards: [] },
-    { type: "club", cards: [] },
-  ]);
-  const [dialogEnabled, setDialogEnabled] = useState(true);
 
   //計時函數
   const timeCounter = (time) => {
@@ -56,53 +53,38 @@ const Stage = () => {
 
   //新遊戲
   const handleNewGame = () => {
-    setDialogEnabled(false);
-
-    //重新計時
-    clearInterval(counter);
     setTime(0);
+    clearInterval(counter);
     timeCounter();
-
-    //重置次數
-    setMoves(0);
-
-    //牌堆重置
-    setFreeCard([{}, {}, {}, {}]);
-    setFinishCard([
-      { type: "spade", cards: [] },
-      { type: "heart", cards: [] },
-      { type: "diamond", cards: [] },
-      { type: "club", cards: [] },
-    ]);
-    shuffle()
+    shuffle();
   };
 
   //暫停遊戲
   const handlePauseGame = () => {
-    setDialogEnabled(true);
-    setGameStatus(1);
+    setGame({ ...game, status: 1, dialogEnabled: true });
     clearInterval(counter);
   };
 
   //繼續遊戲
   const handleResume = () => {
-    setDialogEnabled(false);
+    setGame({ ...game, dialogEnabled: false });
     timeCounter(time);
   };
 
+  //還原上一步
+  const handleRedo = () => {
+    game.history.pop();
+    let newCards = game.history[game.history.length - 1];
+    setGame({ ...game, moves: game.moves + 1, cards: newCards });
+  };
+
   //洗牌
-  const shuffle = (id) => {
+  const shuffle = () => {
     const cards = [];
     const deck = [...PLAYING_CARDS];
 
-    let seed;
-    console.log('shuffleId', id)
-    if (id) {
-      seed = id;
-    } else {
-      seed = Math.floor(Math.random() * 1000000);
-    }
-    setGameId(seed)
+    let seed = Math.floor(Math.random() * 1000000);
+    let id = seed;
 
     for (let len = 52; len >= 2; len--) {
       if (cards.length) return;
@@ -122,72 +104,55 @@ const Stage = () => {
       });
     });
 
-    setDefaultCard(newDeck);
+    game.history.splice(0);
+    const newHistory = { ...game.cards, tableau: newDeck };
+    game.history.push(newHistory);
+    setGame({
+      ...initState,
+      id: id,
+      cards: { ...initState.cards, tableau: newDeck },
+      dialogEnabled: false,
+    });
   };
 
   //拖曳移動卡牌
-  const handleMoveCard = (
-    item,
-    fromPoolType,
-    fromColumn,
-    toPoolType,
-    toColumn
-  ) => {
-    //remove card
-    switch (fromPoolType) {
-      case "free":
-        freeCard[fromColumn] = {};
-        break;
-      case "finish":
-        finishCard[fromColumn].cards.splice(item.cardIdx, 1);
-        break;
-      default:
-        defaultCard[fromColumn].splice(item.cardIdx, 1);
-    }
+  const handleMoveCard = ( itemCards, fromPoolType, fromColumn, toPoolType, toColumn, cardIdx ) => {
+    const jsonGameData = JSON.stringify(game);
+    const newGameData = JSON.parse(jsonGameData);
+    //removeCard
+    newGameData.cards[fromPoolType][fromColumn].splice(cardIdx, 1);
+    //addCard
+    let copyData = newGameData.cards[toPoolType].slice();
+    let newToData = copyData[toColumn].concat(itemCards);
+    newGameData.cards[toPoolType][toColumn] = newToData;
+    //addHistory
+    newGameData.history.push(newGameData.cards);
 
-    //add card
-    let newCard = null;
-    switch (toPoolType) {
-      case "free":
-        newCard = [...freeCard];
-        newCard[toColumn] = item;
-        setFreeCard(newCard);
-        break;
-      case "finish":
-        newCard = [...finishCard];
-        newCard[toColumn].cards.push(item);
-        setFinishCard(newCard);
-        break;
-      default:
-        newCard = [...defaultCard];
-        newCard[toColumn].push(item);
-        setDefaultCard(newCard);
+    const finish = newGameData.cards.foundation.every(item => item.length === 13);
+    if (finish) {
+      setGame({ ...newGameData, status: 2, moves: newGameData.moves + 1, dialogEnabled: true });  
+    } else {
+      setGame({ ...newGameData, moves: newGameData.moves + 1});  
     }
-
-    setMoves(moves + 1);
   };
 
   return (
     <StyleStage>
       <div className="wrap">
         <ControlPanel
-          gameId={gameId}
+          gameId={game.id}
           time={time}
-          moves={moves}
+          moves={game.moves}
+          history={game.history}
           handleNewGame={handleNewGame}
           handlePauseGame={handlePauseGame}
+          handleRedo={handleRedo}
         />
-        <Pool
-          freeCard={freeCard}
-          finishCard={finishCard}
-          defaultCard={defaultCard}
-          handleMoveCard={handleMoveCard}
-        />
+        <Pool cards={game.cards} handleMoveCard={handleMoveCard} />
       </div>
       <Dialog
-        enabled={dialogEnabled}
-        gameStatus={gameStatus}
-        gameId={gameId}
+        enabled={game.dialogEnabled}
+        status={game.status}
         handleNewGame={handleNewGame}
         handleResume={handleResume}
       />

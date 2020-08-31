@@ -9,7 +9,7 @@ import symbloHeart from "../../assets/images/symblo-heart.png";
 import symbloDiamond from "../../assets/images/symblo-diamond.png";
 import symbloClub from "../../assets/images/symblo-club.png";
 
-const StyleFinishPool = styled.div`
+const StyleFoundationPool = styled.div`
   display: flex;
   justify-content: space-between;
   width: 48%;
@@ -43,24 +43,29 @@ const StyleFinishPool = styled.div`
   }
 `;
 
-const FinishPool = ({ finishCard, handleMoveCard }) => {
+//卡片種類
+const type = ["spade", "heart", "diamond", "club"];
+
+const FoundationPool = ({ foundation, handleMoveCard }) => {
   return (
-    <StyleFinishPool>
-      {finishCard.map((item, idx) => {
+    <StyleFoundationPool>
+      {foundation.map((item, idx) => {
         return (
           <CardColumn
-            finishCard={finishCard}
-            poolType={"finish"}
+            foundation={foundation}
+            colorType={type[idx]}
+            poolType={"foundation"}
             columnIdx={idx}
             handleMoveCard={handleMoveCard}
-            key={item.id + item.type}
+            key={idx}
           >
-            {item.cards.map((childItem, childIdx) => {
+            {item.map((childItem, childIdx) => {
               return (
                 <Card
+                  cards={item}
                   cardType={childItem.cardType}
                   cardNum={childItem.cardNum}
-                  fromPoolType={"finish"}
+                  fromPoolType={"foundation"}
                   fromColumn={idx}
                   cardIdx={childIdx}
                   key={childItem.cardType + childItem.cardNum}
@@ -70,8 +75,8 @@ const FinishPool = ({ finishCard, handleMoveCard }) => {
           </CardColumn>
         );
       })}
-    </StyleFinishPool>
+    </StyleFoundationPool>
   );
 };
 
-export default FinishPool;
+export default FoundationPool;

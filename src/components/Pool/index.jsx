@@ -2,8 +2,8 @@ import React from "react";
 import styled from "styled-components";
 //components
 import FreePool from './FreePool'
-import FinishPool from './FinishPool'
-import DefaultPool from './DefaultPool'
+import FoundationPool from './FoundationPool'
+import TableauPool from './TableauPool'
 
 const StylePool = styled.div`
   position: relative;
@@ -24,14 +24,14 @@ const StylePool = styled.div`
   }
 `;
 
-const Pool = ({ freeCard, finishCard, defaultCard, handleMoveCard }) => {
+const Pool = ({ cards: { tableau, free, foundation }, handleMoveCard }) => {
   return (
     <StylePool>
       <div className="top">
-        <FreePool freeCard={freeCard} handleMoveCard={handleMoveCard} />
-        <FinishPool finishCard={finishCard} handleMoveCard={handleMoveCard} />
+        <FreePool free={free} handleMoveCard={handleMoveCard} />
+        <FoundationPool foundation={foundation} handleMoveCard={handleMoveCard} />
       </div>
-      <DefaultPool defaultCard={defaultCard} handleMoveCard={handleMoveCard} />
+      <TableauPool tableau={tableau} handleMoveCard={handleMoveCard} />
     </StylePool>
   );
 };

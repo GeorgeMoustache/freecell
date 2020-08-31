@@ -18,27 +18,31 @@ const StyleFreePool = styled.ul`
   }
 `;
 
-const FreePool = ({ freeCard, handleMoveCard }) => {
+const FreePool = ({ free, handleMoveCard }) => {
   return (
     <StyleFreePool>
-      {freeCard.map((item, idx) => {
+      {free.map((item, idx) => {
         return (
           <CardColumn
-            freeCard={freeCard}
+            free={free}
             poolType={"free"}
             columnIdx={idx}
             handleMoveCard={handleMoveCard}
             key={idx}
           >
-            {item.type === "card" ? (
-              <Card
-                cardType={item.cardType}
-                cardNum={item.cardNum}
-                fromPoolType={"free"}
-                fromColumn={idx}
-                key={item.cardType + item.cardNum}
-              />
-            ) : null}
+            {item.map((childItem, childIdx) => {
+              return (
+                <Card
+                  cards={item}
+                  cardType={childItem.cardType}
+                  cardNum={childItem.cardNum}
+                  fromPoolType={"free"}
+                  fromColumn={idx}
+                  cardIdx={childIdx}
+                  key={childItem.cardType + childItem.cardNum}
+                />
+              );
+            })}
           </CardColumn>
         );
       })}

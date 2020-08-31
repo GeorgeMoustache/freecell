@@ -26,11 +26,11 @@ const StyleControl = styled.ul`
   }
 `;
 
-const Control = ({ handleNewGame, handlePauseGame }) => {
+const Control = ({ history, handleNewGame, handlePauseGame, handleRedo }) => {
   return (
     <StyleControl>
       <li>
-        <button>
+        <button onClick={handleRedo} disabled={history.length <= 1}>
           <i className="fa fa-reply-all fa-lg" />
           redo
         </button>

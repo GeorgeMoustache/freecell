@@ -11,10 +11,10 @@ const StyleControlPanel = styled.div`
   width: 200px;
 `;
 
-const ControlPanel = ({ gameId, time, moves, handleNewGame, handlePauseGame }) => {
+const ControlPanel = ({ gameId, time, moves, history, handleNewGame, handlePauseGame, handleRedo }) => {
   return (
     <StyleControlPanel>
-      <Control handleNewGame={handleNewGame} handlePauseGame={handlePauseGame} />
+      <Control history={history} handleNewGame={handleNewGame} handlePauseGame={handlePauseGame} handleRedo={handleRedo} />
       <Counter gameId={gameId} time={time} moves={moves} />
     </StyleControlPanel>
   );

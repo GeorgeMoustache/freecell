@@ -52,16 +52,15 @@ const StyleDialog = styled.div`
   }
 `;
 
-const Dialog = ({ enabled, gameStatus, gameId, handleNewGame, handleResume }) => {
+const Dialog = ({ enabled, status, handleNewGame, handleResume }) => {
 
   //重開新局
   const restart = () => {
-    let id = gameId;
-    handleNewGame(id)
+    handleNewGame()
   }
 
   const panel = () => {
-    switch (gameStatus) {
+    switch (status) {
       //新局
       case 0:
         return (
