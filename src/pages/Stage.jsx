@@ -120,7 +120,7 @@ const Stage = () => {
     const jsonGameData = JSON.stringify(game);
     const newGameData = JSON.parse(jsonGameData);
     //removeCard
-    newGameData.cards[fromPoolType][fromColumn].splice(cardIdx, 1);
+    newGameData.cards[fromPoolType][fromColumn].splice(cardIdx);
     //addCard
     let copyData = newGameData.cards[toPoolType].slice();
     let newToData = copyData[toColumn].concat(itemCards);

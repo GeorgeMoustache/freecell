@@ -19,19 +19,12 @@ const CardColumn = ({
       const { fromPoolType, fromColumn, cardIdx, cards } = item;
       const toPoolType = poolType;
       const toColumn = columnIdx;
-      const itemCards = item.cards.slice().splice(cardIdx, cards.length);
-      handleMoveCard(
-        itemCards,
-        fromPoolType,
-        fromColumn,
-        toPoolType,
-        toColumn,
-        cardIdx
-      );
+      const itemCards = item.cards.slice().splice(cardIdx);
+      handleMoveCard( itemCards, fromPoolType, fromColumn, toPoolType, toColumn, cardIdx);
     },
     canDrop: (item) => {
       const { cardType, cardNum, cardIdx, cards } = item;
-      const itemCards = cards.slice().splice(cardIdx, cards.length);
+      const itemCards = cards.slice().splice(cardIdx);
 
       //color judgement
       const cardColor = (cardType) => {
@@ -43,19 +36,27 @@ const CardColumn = ({
       };
 
       //判斷卡片群組是否為可拖曳序列
-      const reduceData = itemCards.reduce((prevItem, curItem, idx, array) => {
-        const prevItemType = cardColor(prevItem.cardType);
-        const curItemType = cardColor(curItem.cardType);
-        const prevItemNum = prevItem.cardNum;
-        const curItemNum = curItem.cardNum;
-        if (prevItemType !== curItemType && prevItemNum === curItemNum + 1) {
-          return array;
+      let allowDrag = false
+      for (let i = 0; i < itemCards.length; i ++) {
+        if (i === 0) {
+          allowDrag = true;
         } else {
-          return false;
+          const curItem = itemCards[i];
+          const prevItem = itemCards[i - 1];
+          const prevItemType = cardColor(prevItem.cardType);
+          const curItemType = cardColor(curItem.cardType);
+          const prevItemNum = prevItem.cardNum;
+          const curItemNum = curItem.cardNum;
+          if (prevItemType !== curItemType && prevItemNum === curItemNum + 1) {
+            allowDrag = true
+          } else {
+            allowDrag = false
+            break
+          }
         }
-      });
+      }
 
-      if (reduceData) {
+      if (allowDrag) {
         //rule
         switch (poolType) {
           //freeCard
@@ -87,10 +88,10 @@ const CardColumn = ({
           //tableauCard
           case "tableau":
             const tableauTarget = tableau[columnIdx];
-            const lastTargetCard = tableauTarget[tableauTarget.length - 1];
             if (tableauTarget.length === 0) {
               return true;
             } else {
+              const lastTargetCard = tableauTarget[tableauTarget.length - 1];
               if (
                 cardColor(lastTargetCard.cardType) !== cardColor(cardType) &&
                 lastTargetCard.cardNum === cardNum + 1

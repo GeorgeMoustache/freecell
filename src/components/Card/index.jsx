@@ -19,10 +19,10 @@ const Card = (props) => {
   })
 
   const autoMove = () => {
+    if (fromPoolType === 'foundation') return
     let itemCards = null;
-
     if (fromPoolType === 'tableau') {
-      itemCards = cards.slice().splice(cardIdx, cards.length - 1);
+      itemCards = cards.slice().splice(cardIdx);
     } else {
       itemCards = cards.slice()
     }

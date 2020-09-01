@@ -58,7 +58,7 @@ const CustomDragLayer = () => {
     switch (itemType) {
       case ItemTypes.CARD:
         let copyCards = item.cards.slice();
-        let itemCards = copyCards.splice(item.cardIdx, copyCards.length);
+        let itemCards = copyCards.splice(item.cardIdx);
         return (
           <StyleGroupCard>
             {itemCards.map(newItem => {

@@ -16,6 +16,7 @@ const StylePool = styled.div`
     font-size: 100px;
     color: #00000033;
     font-weight: bold;
+    pointer-events: none;
   }
   .top {
     display: flex;
