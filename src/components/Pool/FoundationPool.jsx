@@ -68,6 +68,7 @@ const FoundationPool = ({ foundation, handleMoveCard }) => {
                   fromPoolType={"foundation"}
                   fromColumn={idx}
                   cardIdx={childIdx}
+                  handleMoveCard={handleMoveCard}
                   key={childItem.cardType + childItem.cardNum}
                 />
               );

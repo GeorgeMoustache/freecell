@@ -8,7 +8,6 @@ const StyleTableauPool = styled.ul`
   display: flex;
   justify-content: space-between;
   li {
-    position: relative;
     width: 100px;
     & img {
       display: block;
@@ -22,7 +21,7 @@ const StyleTableauPool = styled.ul`
   }
 `;
 
-const TableauPool = ({ tableau, handleMoveCard }) => {
+const TableauPool = ({ free, foundation, tableau, handleMoveCard }) => {
   return (
     <StyleTableauPool>
       {tableau.map((item, idx) => {
@@ -37,12 +36,15 @@ const TableauPool = ({ tableau, handleMoveCard }) => {
             {item.map((childItem, childIdx) => {
               return (
                 <Card
+                  free={free}
+                  foundation={foundation}
                   cards={item}
                   cardType={childItem.cardType}
                   cardNum={childItem.cardNum}
                   fromPoolType={"tableau"}
                   fromColumn={idx}
                   cardIdx={childIdx}
+                  handleMoveCard={handleMoveCard}
                   key={childItem.cardType + childItem.cardNum}
                 />
               );

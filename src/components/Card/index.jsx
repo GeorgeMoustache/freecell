@@ -11,12 +11,57 @@ const StyleCard = styled.img`
   margin: 0 auto;
 `
 
-const Card = props => {
-  const { cardType, cardNum } = props
+const Card = (props) => {
+  const { cardType, cardNum, cardIdx, cards, fromPoolType, fromColumn, free, foundation, handleMoveCard } = props
   //eslint-disable-next-line
   const [{}, dragRef, preview] = useDrag({
     item: { type: ItemTypes.CARD, ...props }
   })
+
+  const autoMove = () => {
+    let itemCards = null;
+
+    if (fromPoolType === 'tableau') {
+      itemCards = cards.slice().splice(cardIdx, cards.length - 1);
+    } else {
+      itemCards = cards.slice()
+    }
+
+    if (itemCards.length !== 1) return
+
+    const type = ['spade', 'heart', 'diamond', 'club'];
+    let toPoolType, toColumn;
+    
+    const setFoundation = (idx) => {
+      toPoolType = 'foundation';
+      toColumn = idx;
+    }
+
+    //foundation 區
+    foundation.forEach((item, idx) => {
+      if (item.length !== 0) {
+        const lastItem = item[item.length - 1];
+        if (lastItem.cardType === cardType && lastItem.cardNum === cardNum - 1) {
+          setFoundation(idx);
+        }
+      }
+      
+      if (type[idx] === cardType && cardNum === 1) {
+        setFoundation(idx);
+      }
+    })
+
+    // free 區
+    free.forEach((item, idx) => {
+      if (!toPoolType && item.length === 0) {
+        toPoolType = 'free';
+        toColumn = idx;
+      }
+    })
+
+    if (!toPoolType && !toColumn) return
+    handleMoveCard(itemCards, fromPoolType, fromColumn, toPoolType, toColumn, cardIdx);
+  }
 
   useEffect(()=> {
     //使用HTML5-backend 中的 getEmptyImage 去設定預設拖曳樣式
@@ -24,7 +69,7 @@ const Card = props => {
   }, [preview])
 
   return (
-    <StyleCard ref={dragRef} src={require(`../../assets/images/${cardType}_${cardNum}.png`)} alt={`${cardType}${cardNum}`} />
+    <StyleCard ref={dragRef} src={require(`../../assets/images/${cardType}_${cardNum}.png`)} alt={`${cardType}${cardNum}`} onDoubleClick={autoMove} />
   )
 }
 

@@ -28,10 +28,10 @@ const Pool = ({ cards: { tableau, free, foundation }, handleMoveCard }) => {
   return (
     <StylePool>
       <div className="top">
-        <FreePool free={free} handleMoveCard={handleMoveCard} />
+        <FreePool free={free} foundation={foundation} handleMoveCard={handleMoveCard} />
         <FoundationPool foundation={foundation} handleMoveCard={handleMoveCard} />
       </div>
-      <TableauPool tableau={tableau} handleMoveCard={handleMoveCard} />
+      <TableauPool free={free} foundation={foundation} tableau={tableau} handleMoveCard={handleMoveCard} />
     </StylePool>
   );
 };
