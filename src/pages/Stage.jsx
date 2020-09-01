@@ -131,6 +131,7 @@ const Stage = () => {
     const finish = newGameData.cards.foundation.every(item => item.length === 13);
     if (finish) {
       setGame({ ...newGameData, status: 2, moves: newGameData.moves + 1, dialogEnabled: true });  
+      clearInterval(counter)
     } else {
       setGame({ ...newGameData, moves: newGameData.moves + 1});  
     }
